@@ -4,7 +4,6 @@ import cats.effect.IO
 import cats.implicits._
 import com.softwaremill.bootzooka._
 import com.softwaremill.bootzooka.infrastructure.Json._
-import com.softwaremill.bootzooka.logging.FLogging
 import com.softwaremill.bootzooka.util.Id
 import com.softwaremill.tagging._
 import io.circe.Printer
@@ -16,7 +15,7 @@ import sttp.tapir.{Codec, Endpoint, EndpointOutput, PublicEndpoint, Schema, Sche
 import tsec.common.SecureRandomId
 
 /** Helper class for defining HTTP endpoints. Import the members of this class when defining an HTTP API using tapir. */
-class Http() extends Tapir with TapirJsonCirce with TapirSchemas with FLogging {
+class Http() extends Tapir with TapirJsonCirce with TapirSchemas {
 
   val jsonErrorOutOutput: EndpointOutput[Error_OUT] = jsonBody[Error_OUT]
 
@@ -51,13 +50,10 @@ class Http() extends Tapir with TapirJsonCirce with TapirSchemas with FLogging {
 
   implicit class IOOut[T](f: IO[T]) {
 
-    /** An extension method for [[IO]], which converts a possibly failed IO, to one which either returns the error converted to an
-      * [[Error_OUT]] instance, or returns the successful value unchanged.
-      */
     def toOut: IO[Either[(StatusCode, Error_OUT), T]] = {
       f.map(t => t.asRight[(StatusCode, Error_OUT)]).recoverWith { case f: Fail =>
         val (statusCode, message) = failToResponseData(f)
-        logger.warn[IO](s"Request fail: $message").map(_ => (statusCode, Error_OUT(message)).asLeft[T])
+        IO.unit.map(_ => (statusCode, Error_OUT(message)).asLeft[T])
       }
     }
   }

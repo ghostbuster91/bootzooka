@@ -10,7 +10,7 @@ import sttp.client3.asynchttpclient.fs2.AsyncHttpClientFs2Backend
 import sttp.client3.testing.SttpBackendStub
 import sttp.tapir.server.stub.TapirStubInterpreter
 
-trait TestDependencies extends BeforeAndAfterAll with TestEmbeddedPostgres {
+trait TestDependencies extends BeforeAndAfterAll  {
   self: Suite with BaseTest =>
   var dependencies: Dependencies = _
 
@@ -24,11 +24,7 @@ trait TestDependencies extends BeforeAndAfterAll with TestEmbeddedPostgres {
 
       Dependencies
         .wire(
-          config = TestConfig,
-          sttpBackend = Resource.pure(stub),
-          xa = Resource.pure(currentDb.xa),
-          clock = testClock,
-          collectorRegistry = new CollectorRegistry()
+          config = TestConfig
         )
         .allocated
         .unsafeRunSync()

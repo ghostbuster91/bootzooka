@@ -1,51 +1,51 @@
 package com.softwaremill.bootzooka.user
 
-import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
-class UserValidatorSpec extends AnyFlatSpec with Matchers {
+class UserValidatorSpec extends AnyFunSuite with Matchers {
   private def validate(userName: String, email: String, password: String) =
     UserValidator(Some(userName), Some(email), Some(password)).result
 
-  "validate" should "accept valid data" in {
+  test("accept valid data") {
     val dataIsValid = validate("login", "admin@bootzooka.com", "password")
 
     dataIsValid shouldBe Right(())
   }
 
-  "validate" should "not accept login containing only empty spaces" in {
+  test("not accept login containing only empty spaces") {
     val dataIsValid = validate("   ", "admin@bootzooka.com", "password")
 
     dataIsValid.isLeft shouldBe true
   }
 
-  "validate" should "not accept too short login" in {
+  test("not accept too short login") {
     val tooShortLogin = "a" * (UserValidator.MinLoginLength - 1)
     val dataIsValid = validate(tooShortLogin, "admin@bootzooka.com", "password")
 
     dataIsValid.isLeft shouldBe true
   }
 
-  "validate" should "not accept too short login after trimming" in {
+  test("not accept too short login after trimming") {
     val loginTooShortAfterTrim = "a" * (UserValidator.MinLoginLength - 1) + "   "
     val dataIsValid = validate(loginTooShortAfterTrim, "admin@bootzooka.com", "password")
 
     dataIsValid.isLeft shouldBe true
   }
 
-  "validate" should "not accept missing email with spaces only" in {
+  test("not accept missing email with spaces only") {
     val dataIsValid = validate("login", "   ", "password")
 
     dataIsValid.isLeft shouldBe true
   }
 
-  "validate" should "not accept invalid email" in {
+  test("not accept invalid email") {
     val dataIsValid = validate("login", "invalidEmail", "password")
 
     dataIsValid.isLeft shouldBe true
   }
 
-  "validate" should "not accept password with empty spaces only" in {
+  test("not accept password with empty spaces only") {
     val dataIsValid = validate("login", "admin@bootzooka.com", "    ")
 
     dataIsValid.isLeft shouldBe true

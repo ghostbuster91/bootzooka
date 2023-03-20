@@ -7,5 +7,5 @@ import scala.concurrent.duration._
 
 package object test {
   val DefaultConfig: Config = Config.read
-  val TestConfig: Config = DefaultConfig.modify(_.email.emailSendInterval).setTo(100.milliseconds)
+  val TestConfig: Config = DefaultConfig
 }

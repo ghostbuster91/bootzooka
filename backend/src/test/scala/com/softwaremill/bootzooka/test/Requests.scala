@@ -1,7 +1,6 @@
 package com.softwaremill.bootzooka.test
 
 import cats.effect.IO
-import com.softwaremill.bootzooka.passwordreset.PasswordResetApi.{ForgotPassword_IN, PasswordReset_IN}
 import com.softwaremill.bootzooka.user.UserApi._
 import io.circe.generic.auto._
 import io.circe.syntax.EncoderOps
@@ -49,37 +48,4 @@ class Requests(backend: SttpBackend[IO, Any]) extends TestSupport {
       .unwrap
   }
 
-  def changePassword(apiKey: String, password: String, newPassword: String): Response[Either[String, String]] = {
-    basicRequest
-      .post(uri"$basePath/user/changepassword")
-      .body(ChangePassword_IN(password, newPassword).asJson.noSpaces)
-      .header("Authorization", s"Bearer $apiKey")
-      .send(backend)
-      .unwrap
-  }
-
-  def updateUser(apiKey: String, login: String, email: String): Response[Either[String, String]] = {
-    basicRequest
-      .post(uri"$basePath/user")
-      .body(UpdateUser_IN(login, email).asJson.noSpaces)
-      .header("Authorization", s"Bearer $apiKey")
-      .send(backend)
-      .unwrap
-  }
-
-  def forgotPassword(loginOrEmail: String): Response[Either[String, String]] = {
-    basicRequest
-      .post(uri"$basePath/passwordreset/forgot")
-      .body(ForgotPassword_IN(loginOrEmail).asJson.noSpaces)
-      .send(backend)
-      .unwrap
-  }
-
-  def resetPassword(code: String, password: String): Response[Either[String, String]] = {
-    basicRequest
-      .post(uri"$basePath/passwordreset/reset")
-      .body(PasswordReset_IN(code, password).asJson.noSpaces)
-      .send(backend)
-      .unwrap
-  }
 }
