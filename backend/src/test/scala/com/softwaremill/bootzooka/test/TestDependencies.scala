@@ -1,16 +1,16 @@
 package com.softwaremill.bootzooka.test
 
-import cats.effect.{IO, Resource}
+import cats.effect.IO
 import com.softwaremill.bootzooka.Dependencies
-import io.prometheus.client.CollectorRegistry
-import org.scalatest.{BeforeAndAfterAll, Suite}
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.Suite
 import sttp.capabilities.fs2.Fs2Streams
 import sttp.client3.SttpBackend
 import sttp.client3.asynchttpclient.fs2.AsyncHttpClientFs2Backend
 import sttp.client3.testing.SttpBackendStub
 import sttp.tapir.server.stub.TapirStubInterpreter
 
-trait TestDependencies extends BeforeAndAfterAll  {
+trait TestDependencies extends BeforeAndAfterAll {
   self: Suite with BaseTest =>
   var dependencies: Dependencies = _
 

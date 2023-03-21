@@ -1,12 +1,9 @@
 package com.softwaremill.bootzooka.config
 
 import com.softwaremill.bootzooka.user.UserConfig
-import com.softwaremill.bootzooka.version.BuildInfo
 import com.typesafe.scalalogging.StrictLogging
 import pureconfig.ConfigSource
 import pureconfig.generic.auto._
-
-import scala.collection.immutable.TreeMap
 import com.softwaremill.bootzooka.http.HttpConfig
 
 /** Maps to the `application.conf` file. Configuration for all modules of the application. */
@@ -24,11 +21,7 @@ object Config extends StrictLogging {
                       |-----------------
                       |""".stripMargin
 
-    val info = TreeMap(BuildInfo.toMap.toSeq: _*).foldLeft(baseInfo) { case (str, (k, v)) =>
-      str + s"$k: $v\n"
-    }
-
-    logger.info(info)
+    logger.info(baseInfo)
   }
 
   def read: Config = ConfigSource.default.loadOrThrow[Config]

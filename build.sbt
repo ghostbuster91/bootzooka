@@ -94,29 +94,10 @@ val dbTestingStack = Seq(embeddedPostgres)
 
 val commonDependencies = baseDependencies ++ unitTestingStack ++ loggingDependencies ++ configDependencies
 
-lazy val uiProjectName = "ui"
-lazy val uiDirectory = settingKey[File]("Path to the ui project directory")
-lazy val updateYarn = taskKey[Unit]("Update yarn")
-lazy val yarnTask = inputKey[Unit]("Run yarn with arguments")
-lazy val copyWebapp = taskKey[Unit]("Copy webapp")
-
 lazy val commonSettings = commonSmlBuildSettings ++ Seq(
   organization := "com.softwaremill.bootzooka",
   scalaVersion := "2.13.8",
-  libraryDependencies ++= commonDependencies,
-  uiDirectory := (ThisBuild / baseDirectory).value / uiProjectName,
-  updateYarn := {
-    streams.value.log("Updating npm/yarn dependencies")
-    haltOnCmdResultError(Process("yarn install", uiDirectory.value).!)
-  },
-  yarnTask := {
-    val taskName = spaceDelimited("<arg>").parsed.mkString(" ")
-    updateYarn.value
-    val localYarnCommand = "yarn " + taskName
-    def runYarnTask() = Process(localYarnCommand, uiDirectory.value).!
-    streams.value.log("Running yarn task: " + taskName)
-    haltOnCmdResultError(runYarnTask())
-  }
+  libraryDependencies ++= commonDependencies
 )
 
 lazy val buildInfoSettings = Seq(
@@ -183,23 +164,15 @@ def now(): String = {
 lazy val rootProject = (project in file("."))
   .settings(commonSettings)
   .settings(
-    name := "bootzooka",
-    Compile / herokuFatJar := Some((backend / assembly / assemblyOutputPath).value),
-    Compile / deployHeroku := ((Compile / deployHeroku) dependsOn (backend / assembly)).value
+    name := "bootzooka"
   )
-  .aggregate(backend, ui)
+  .aggregate(backend)
 
 lazy val backend: Project = (project in file("backend"))
   .settings(
+    name = "bootzooka",
     libraryDependencies ++= dbDependencies ++ httpDependencies ++ jsonDependencies ++ apiDocsDependencies ++ monitoringDependencies ++ dbTestingStack ++ securityDependencies ++ emailDependencies ++ macwireDependencies,
-    Compile / mainClass := Some("com.softwaremill.bootzooka.Main"),
-    copyWebapp := {
-      val source = uiDirectory.value / "build"
-      val target = (Compile / classDirectory).value / "webapp"
-      streams.value.log.info(s"Copying the webapp resources from $source to $target")
-      IO.copyDirectory(source, target)
-    },
-    copyWebapp := copyWebapp.dependsOn(yarnTask.toTask(" build")).value
+    Compile / mainClass := Some("com.softwaremill.bootzooka.Main")
   )
   .enablePlugins(BuildInfoPlugin)
   .settings(commonSettings)
@@ -209,10 +182,3 @@ lazy val backend: Project = (project in file("backend"))
   .enablePlugins(DockerPlugin)
   .enablePlugins(JavaServerAppPackaging)
   .settings(dockerSettings)
-
-lazy val ui = (project in file(uiProjectName))
-  .settings(commonSettings)
-  .settings(Test / test := (Test / test).dependsOn(yarnTask.toTask(" test:ci")).value)
-  .settings(cleanFiles += baseDirectory.value / "build")
-
-RenameProject.settings

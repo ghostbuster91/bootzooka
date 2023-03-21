@@ -33,7 +33,7 @@ class UserApiTest extends BaseTest with Eventually with TestDependencies with Te
 
     // then
     response1.code shouldBe StatusCode.Ok
-    val apiKey = response1.body.shouldDeserializeTo[Register_OUT].apiKey
+    response1.body.shouldDeserializeTo[Register_OUT].apiKey
 
   }
 
@@ -61,7 +61,6 @@ class UserApiTest extends BaseTest with Eventually with TestDependencies with Te
     response1.code shouldBe StatusCode.Ok
     response2.code shouldBe StatusCode.BadRequest
   }
-
 
   "/user/login" should "login the user using the login" in {
     // given
@@ -107,7 +106,6 @@ class UserApiTest extends BaseTest with Eventually with TestDependencies with Te
     response1.body.shouldDeserializeTo[Login_OUT]
   }
 
-
   "/user/login" should "respond with 403 HTTP status code and 'Incorrect login/email or password' message if user was not found" in {
     // given
     val RegisteredUser(_, _, password, _) = requests.newRegisteredUsed()
@@ -131,6 +129,5 @@ class UserApiTest extends BaseTest with Eventually with TestDependencies with Te
   "/user/info" should "respond with 403 if the token is invalid" in {
     requests.getUser("invalid").code shouldBe StatusCode.Unauthorized
   }
-
 
 }

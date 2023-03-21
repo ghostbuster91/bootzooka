@@ -6,7 +6,6 @@ import com.softwaremill.bootzooka.http.Http
 import com.softwaremill.bootzooka.infrastructure.Json._
 import com.softwaremill.bootzooka.util.ServerEndpoints
 
-import java.time.Instant
 import sttp.tapir.server.ServerEndpoint
 
 class UserApi(http: Http, userService: UserService) {
@@ -20,9 +19,9 @@ class UserApi(http: Http, userService: UserService) {
       .in(UserPath / "register")
       .in(jsonBody[Register_IN])
       .out(jsonBody[Register_OUT])
-      .serverLogic[IO]{ data =>
+      .serverLogic[IO] { data =>
         (for {
-          _ <- userService.registerNewUser(data.login, data.email, data.password)
+         _ <- userService.registerNewUser(data.login, data.email, data.password)
         } yield Register_OUT("")).toOut
       }
 
@@ -32,7 +31,7 @@ class UserApi(http: Http, userService: UserService) {
     .out(jsonBody[Login_OUT])
     .serverLogic[IO] { data =>
       (for {
-        apiKey <- userService
+        _ <- userService
           .login(data.loginOrEmail, data.password)
       } yield Login_OUT("")).toOut
     }
@@ -41,7 +40,6 @@ class UserApi(http: Http, userService: UserService) {
     NonEmptyList
       .of(
         registerUserEndpoint,
-        loginEndpoint
       )
 
 }

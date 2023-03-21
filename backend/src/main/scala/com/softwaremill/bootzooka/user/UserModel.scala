@@ -1,25 +1,21 @@
 package com.softwaremill.bootzooka.user
 
-import java.time.Instant
-
 import cats.implicits._
-import com.softwaremill.bootzooka.util.{Id, LowerCased}
 import tsec.common.VerificationStatus
 import tsec.passwordhashers.PasswordHash
 import tsec.passwordhashers.jca.SCrypt
-import cats.Applicative
+import com.softwaremill.bootzooka.util.Id
+import cats.effect.kernel.Sync
 
-class UserModel[F[_]: Applicative] {
+class UserModel[F[_]: Sync] {
+  val db = scala.collection.mutable.HashMap[String, User]()
 
   def insert(user: User): F[Unit] = {
-    ().pure[F]
+    Sync[F].delay(db.put(user.login, user)).void
   }
 
-  def findByEmail(email: String ): F[Option[User]] = {
-    Option.empty[User].pure[F]
-  }
   def findByLogin(login: String): F[Option[User]] = {
-    Option.empty[User].pure[F]
+    Sync[F].delay(db.get(login))
   }
 }
 
@@ -28,7 +24,7 @@ case class User(
     login: String,
     loginLowerCased: String,
     emailLowerCased: String,
-    passwordHash: PasswordHash[SCrypt],
+    passwordHash: PasswordHash[SCrypt]
 ) {
 
   def verifyPassword(password: String): VerificationStatus = SCrypt.checkpw[cats.Id](password, passwordHash)
