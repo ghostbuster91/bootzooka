@@ -21,7 +21,7 @@ class UserApi(http: Http, userService: UserService) {
       .out(jsonBody[Register_OUT])
       .serverLogic[IO] { data =>
         (for {
-         _ <- userService.registerNewUser(data.login, data.email, data.password)
+          _ <- userService.registerNewUser(data.login, data.email, data.password)
         } yield Register_OUT("")).toOut
       }
 
@@ -40,6 +40,7 @@ class UserApi(http: Http, userService: UserService) {
     NonEmptyList
       .of(
         registerUserEndpoint,
+        loginEndpoint
       )
 
 }

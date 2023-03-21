@@ -1,11 +1,10 @@
 package com.softwaremill.bootzooka.user
 
 import cats.implicits._
-import tsec.common.VerificationStatus
-import tsec.passwordhashers.PasswordHash
-import tsec.passwordhashers.jca.SCrypt
 import com.softwaremill.bootzooka.util.Id
 import cats.effect.kernel.Sync
+import java.security.MessageDigest
+import java.util.Base64
 
 class UserModel[F[_]: Sync] {
   val db = scala.collection.mutable.HashMap[String, User]()
@@ -24,12 +23,14 @@ case class User(
     login: String,
     loginLowerCased: String,
     emailLowerCased: String,
-    passwordHash: PasswordHash[SCrypt]
+    passwordHash: String
 ) {
 
-  def verifyPassword(password: String): VerificationStatus = SCrypt.checkpw[cats.Id](password, passwordHash)
+  def verifyPassword(password: String): Boolean =
+    User.hashPassword(password) == passwordHash
 }
 
 object User {
-  def hashPassword(password: String): PasswordHash[SCrypt] = SCrypt.hashpw[cats.Id](password)
+  def digest = MessageDigest.getInstance("SHA-256");
+  def hashPassword(password: String): String = Base64.getEncoder().encodeToString(User.digest.digest(password.getBytes()))
 }

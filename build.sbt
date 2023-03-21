@@ -13,18 +13,10 @@ import complete.DefaultParsers._
 val doobieVersion = "1.0.0-RC2"
 val http4sVersion = "0.23.12"
 val circeVersion = "0.14.2"
-val tsecVersion = "0.4.0"
 val sttpVersion = "3.7.0"
 val prometheusVersion = "0.16.0"
 val tapirVersion = "1.0.1"
 val macwireVersion = "2.5.7"
-
-val dbDependencies = Seq(
-  "org.tpolecat" %% "doobie-core" % doobieVersion,
-  "org.tpolecat" %% "doobie-hikari" % doobieVersion,
-  "org.tpolecat" %% "doobie-postgres" % doobieVersion,
-  "org.flywaydb" % "flyway-core" % "8.5.13"
-)
 
 val httpDependencies = Seq(
   "org.http4s" %% "http4s-dsl" % http4sVersion,
@@ -73,11 +65,6 @@ val apiDocsDependencies = Seq(
   "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % tapirVersion
 )
 
-val securityDependencies = Seq(
-  "io.github.jmcardon" %% "tsec-password" % tsecVersion,
-  "io.github.jmcardon" %% "tsec-cipher-jca" % tsecVersion
-)
-
 val emailDependencies = Seq(
   "com.sun.mail" % "javax.mail" % "1.6.2" exclude ("javax.activation", "activation")
 )
@@ -90,7 +77,6 @@ val macwireDependencies = Seq(
 val unitTestingStack = Seq(scalatest)
 
 val embeddedPostgres = "com.opentable.components" % "otj-pg-embedded" % "1.0.1" % Test
-val dbTestingStack = Seq(embeddedPostgres)
 
 val commonDependencies = baseDependencies ++ unitTestingStack ++ loggingDependencies ++ configDependencies
 
@@ -118,37 +104,6 @@ lazy val buildInfoSettings = Seq(
   buildInfoObject := "BuildInfo"
 )
 
-lazy val fatJarSettings = Seq(
-  assembly / assemblyJarName := "bootzooka.jar",
-  assembly := assembly.dependsOn(copyWebapp).value,
-  assembly / assemblyMergeStrategy := {
-    case PathList(ps @ _*) if ps.last endsWith "io.netty.versions.properties"       => MergeStrategy.first
-    case PathList(ps @ _*) if ps.last endsWith "pom.properties"                     => MergeStrategy.first
-    case PathList(ps @ _*) if ps.last endsWith "scala-collection-compat.properties" => MergeStrategy.first
-    case x =>
-      val oldStrategy = (assembly / assemblyMergeStrategy).value
-      oldStrategy(x)
-  }
-)
-
-lazy val dockerSettings = Seq(
-  dockerExposedPorts := Seq(8080),
-  dockerBaseImage := "adoptopenjdk:11.0.5_10-jdk-hotspot",
-  Docker / packageName := "bootzooka",
-  dockerUsername := Some("softwaremill"),
-  dockerUpdateLatest := true,
-  Docker / publishLocal := (Docker / publishLocal).dependsOn(copyWebapp).value,
-  Docker / version := git.gitDescribedVersion.value.getOrElse(git.formattedShaVersion.value.getOrElse("latest")),
-  git.uncommittedSignifier := Some("dirty"),
-  ThisBuild / git.formattedShaVersion := {
-    val base = git.baseVersion.?.value
-    val suffix = git.makeUncommittedSignifierSuffix(git.gitUncommittedChanges.value, git.uncommittedSignifier.value)
-    git.gitHeadCommit.value.map { sha =>
-      git.defaultFormatShaVersion(base, sha.take(7), suffix)
-    }
-  }
-)
-
 def haltOnCmdResultError(result: Int) {
   if (result != 0) {
     throw new Exception("Build failed.")
@@ -170,15 +125,12 @@ lazy val rootProject = (project in file("."))
 
 lazy val backend: Project = (project in file("backend"))
   .settings(
-    name = "bootzooka",
-    libraryDependencies ++= dbDependencies ++ httpDependencies ++ jsonDependencies ++ apiDocsDependencies ++ monitoringDependencies ++ dbTestingStack ++ securityDependencies ++ emailDependencies ++ macwireDependencies,
+    name := "bootzooka",
+    libraryDependencies ++= httpDependencies ++ jsonDependencies ++ apiDocsDependencies ++ monitoringDependencies ++ emailDependencies ++ macwireDependencies,
     Compile / mainClass := Some("com.softwaremill.bootzooka.Main")
   )
   .enablePlugins(BuildInfoPlugin)
   .settings(commonSettings)
   .settings(Revolver.settings)
   .settings(buildInfoSettings)
-  .settings(fatJarSettings)
-  .enablePlugins(DockerPlugin)
   .enablePlugins(JavaServerAppPackaging)
-  .settings(dockerSettings)
