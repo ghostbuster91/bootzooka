@@ -11,7 +11,7 @@ case class Dependencies(httpApi: HttpApi)
 
 object Dependencies {
   def wire(
-      config: Config,
+      config: Config
   ): Resource[IO, Dependencies] = {
     def buildHttpApi(
         http: Http,

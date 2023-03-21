@@ -43,11 +43,9 @@ case class UserValidator(loginOpt: Option[String], emailOpt: Option[String], pas
     """^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$""".r
 
   val result: Either[String, Unit] = {
-    for {
-      _ <- validateLogin(loginOpt)
-      _ <- validateEmail(emailOpt)
-      _ <- validatePassword(passwordOpt)
-    } yield ()
+    validateLogin(loginOpt)
+      .flatMap(_ => validateEmail(emailOpt))
+      .flatMap(_ => validatePassword(passwordOpt))
   }
 
   def as[F[_]](implicit me: MonadError[F, Throwable]): F[Unit] =
