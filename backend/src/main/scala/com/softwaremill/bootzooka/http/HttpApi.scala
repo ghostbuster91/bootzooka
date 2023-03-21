@@ -45,10 +45,9 @@ class HttpApi(
       .toList
       .map(_.asInstanceOf[ServerEndpoint[Any, IO]])
 
-
   /** The resource describing the HTTP server; binds when the resource is allocated. */
   lazy val resource: Resource[IO, org.http4s.server.Server] = BlazeServerBuilder[IO]
-    .bindHttp(config.port, config.host)
+    // .bindHttp(config.port, config.host)
     .withHttpApp(routes.orNotFound)
     .resource
 }
