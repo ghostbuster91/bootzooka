@@ -8,13 +8,12 @@ import cats.effect.IO
 
 class UserService(
     idGenerator: IdGenerator,
-    userModel:UserModel[IO]
-)  {
+    userModel: UserModel[IO]
+) {
 
   def registerNewUser(login: String, email: String, password: String): IO[User] = {
     val loginClean = login.trim()
     val emailClean = email.trim()
-
 
     def doRegister(): IO[User] = for {
       id <- idGenerator.nextId[IO, User]()
@@ -27,7 +26,6 @@ class UserService(
       r <- doRegister()
     } yield r
   }
-
 
   def login(loginOrEmail: String, password: String): IO[String] = {
     IO.raiseError(new RuntimeException("todo"))
