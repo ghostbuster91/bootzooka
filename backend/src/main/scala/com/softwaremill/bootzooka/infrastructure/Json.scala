@@ -1,7 +1,6 @@
 package com.softwaremill.bootzooka.infrastructure
 
 import io.circe.Encoder
-import io.circe.Printer
 import io.circe.generic.AutoDerivation
 
 /** Import the members of this object when doing JSON serialisation or deserialisation.
