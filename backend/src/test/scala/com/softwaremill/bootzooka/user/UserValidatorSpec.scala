@@ -4,8 +4,10 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
 class UserValidatorSpec extends AnyFlatSpec with Matchers {
-  private def validate(userName: String, email: String, password: String) =
-    UserValidator(Some(userName), Some(email), Some(password)).result
+  private def validate(userName: String, email: String, password: String) = {
+    val v = UserValidator(Some(userName), Some(email), Some(password))
+    v.result()
+  }
 
   "validate" should "not accept login containing only empty spaces" in {
     val dataIsValid = validate("   ", "admin@bootzooka.com", "password")

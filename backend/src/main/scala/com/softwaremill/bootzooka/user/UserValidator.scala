@@ -10,14 +10,14 @@ case class UserValidator(loginOpt: Option[String], emailOpt: Option[String], pas
   private val emailRegex =
     """^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$""".r
 
-  val result: Either[String, Unit] = {
+  def result(): Either[String, Unit] = {
     validateLogin(loginOpt)
       .flatMap(_ => validateEmail(emailOpt))
       .flatMap(_ => validatePassword(passwordOpt))
   }
 
   def as[F[_]](implicit me: MonadError[F, Throwable]): F[Unit] =
-    result.fold(msg => Fail.IncorrectInput(msg).raiseError[F, Unit], _ => ().pure[F])
+    result().fold(msg => Fail.IncorrectInput(msg).raiseError[F, Unit], _ => ().pure[F])
 
   private def validateLogin(loginOpt: Option[String]): Either[String, Unit] =
     loginOpt.map(_.trim) match {
