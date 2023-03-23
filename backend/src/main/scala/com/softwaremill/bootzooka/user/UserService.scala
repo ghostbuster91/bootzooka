@@ -28,7 +28,7 @@ class UserService(
   }
 
   def login(loginOrEmail: String, password: String): IO[String] = {
-    IO.raiseError(new RuntimeException("todo"))
+    IO.raiseError(new RuntimeException(s"todo $loginOrEmail $password"))
   }
 }
 

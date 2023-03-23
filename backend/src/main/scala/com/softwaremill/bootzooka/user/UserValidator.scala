@@ -3,8 +3,6 @@ package com.softwaremill.bootzooka.user
 import cats.MonadError
 import cats.implicits._
 import com.softwaremill.bootzooka._
-import com.softwaremill.bootzooka.util._
-import cats.effect.IO
 
 case class UserValidator(loginOpt: Option[String], emailOpt: Option[String], passwordOpt: Option[String]) {
   private val ValidationOk = Right(())
