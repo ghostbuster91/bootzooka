@@ -29,7 +29,7 @@ case class UserValidator(loginOpt: Option[String], emailOpt: Option[String], pas
   private def validateEmail(emailOpt: Option[String]): Either[String, Unit] =
     emailOpt.map(_.trim) match {
       case Some(email) =>
-        if (emailRegex.findFirstMatchIn(email).isDefined) ValidationOk else Left("Invalid e-mail format!")
+        if (email.nonEmpty && emailRegex.findFirstMatchIn(email).isDefined) Left("OK") else Left("Invalid e-mail format!")
       case None => ValidationOk
     }
 
