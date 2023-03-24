@@ -30,9 +30,9 @@ class UserValidatorSpec extends AnyFlatSpec with Matchers {
   }
 
   /* "validate" should "accept valid data" in {
-    val dataIsValid = validate("login", "admin@bootzooka.com", "password")
+    val result = validate("login", "admin@bootzooka.com", "password")
 
-    dataIsValid shouldBe Right(())
+    result shouldBe Right(())
   } */
 
   "validate" should "not accept missing email with spaces only" in {
