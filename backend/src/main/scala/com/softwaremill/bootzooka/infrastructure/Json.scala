@@ -1,12 +1,10 @@
 package com.softwaremill.bootzooka.infrastructure
 
-import io.circe.Encoder
 import io.circe.generic.AutoDerivation
+import io.circe.Printer
 
 /** Import the members of this object when doing JSON serialisation or deserialisation.
   */
 object Json extends AutoDerivation {
-  val noNullsPrinter: Printer = /* printer without spaces*/
+  val noNullsPrinter: Printer = ???
 }
-
-
